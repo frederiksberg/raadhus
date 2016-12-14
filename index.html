@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Find vej på Frederiksberg Rådhus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- Lib-->
+  <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+  <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+  <!-- Lib stylesheets -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" /> 
+  <!-- javascript -->
+  <script src='js/raadhus.js'></script> 
+  <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+
+    .picker {
+        line-height: 18px;
+        color: #555;
+        float: left;
+        margin-right: 8px;
+        opacity: 1;
+        padding: 6px 8px;
+        font: 10pt Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255,255,255,1);
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border-radius: 5px;
+    }
+  </style>
+    <script type='text/javascript'>
+    var rum_nr = Number(getParameterByName('rum'));
+    var sal = getParameterByName('sal');
+    $(document).ready(function(){
+        if(rum_nr) {
+           zoomFromRoomNumber(rum_nr,map,'data/numre_raadhus.geojson');
+        }
+        populateRoomNumbers(rum_nr,'data/numre_raadhus.geojson');
+        populateSale(sal);
+    });	
+    </script>
+</head>
+<body>
+<div id='map'></div>
+<script type='text/javascript'>
+        var map = L.map('map',{ minZoom: 19, maxZoom: 21}).setView([55.678265,12.531274],19);
+        map.setMaxBounds([[55.676,12.527],[55.681,12.537]]);
+        orto2013f_raadhus.addTo(map);
+        var baseLayers = {
+           "5. sal": raadhus_5,
+           "4. sal": raadhus_4,
+           "3. sal": raadhus_3,
+           "2. sal": raadhus_2,
+           "1. sal": raadhus_1,
+           "Stuen": raadhus_0,
+           "Kælder": raadhus_00
+           };
+
+        var overlays = {};        
+        layersControl = new L.Control.Layers(baseLayers, overlays, {
+			//collapsed: true,
+			collapsed: false,
+			autoZIndex: false
+		}).addTo(map);
+
+		switch(sal) {
+        case '5':
+            raadhus_5.addTo(map);
+            break;
+        case '4':
+            raadhus_4.addTo(map);
+            break;
+        case '3':
+            raadhus_3.addTo(map);
+            break;
+        case '2':
+            raadhus_2.addTo(map);
+            break;
+        case '1':
+            raadhus_1.addTo(map);
+            break;
+        case '0':
+            raadhus_0.addTo(map);
+            break;
+        case '00':
+            raadhus_00.addTo(map);
+            break;
+        }
+        map.addControl(scale);
+        var roompicker = L.control({position: 'bottomright'});
+        roompicker.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info picker');
+            div.innerHTML = '<form action="" method="get">Sal: <select id="input-sal" name="sal"></select>, Værelsenummer: <select id="numre" name="rum"></select>&nbsp;&nbsp;<input type="submit" value="Find"></form>';
+            return div;
+        };
+        roompicker.addTo(map);
+        var rp = roompicker.getContainer();
+        L.DomEvent.disableClickPropagation(rp);
+</script>
+</body>
+</html>
